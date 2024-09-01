@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const { getTotalCartAmount } = useContext(StoreContext);
+  const { getTotalCartAmount, food_list, cartItems } = useContext(StoreContext);
 
   const [first_name, setFirst_name] = useState("");
   const [last_name, setlast_name] = useState("");
@@ -16,6 +16,31 @@ const PlaceOrder = () => {
   const [zip_code, setZip_code] = useState("");
   const [country, setCountry] = useState("");
   const [phone, setPhone] = useState("");
+  const [nameQty, setNameQty] = useState("");
+  const [total, setTotal] = useState("");
+
+  const getInfo = () => {
+    let itemQuantity = [];
+    let totalAmount;
+
+    food_list.map((item, index) => {
+      if (cartItems[item._id] > 0) {
+        itemQuantity.push(`${item.name} x ${cartItems[item._id]}`);
+        totalAmount = getTotalCartAmount() + 2;
+
+        // console.log(itemName);
+        // console.log(itemQuantity);
+        // console.log(totalAmount);
+
+        setNameQty(itemQuantity.join(", "));
+        setTotal(totalAmount);
+      }
+    });
+  };
+
+  useEffect(() => {
+    getInfo();
+  }, []);
 
   const handleSubmit = async (e) => {
     try {
@@ -31,6 +56,8 @@ const PlaceOrder = () => {
         zip_code,
         country,
         phone,
+        nameQty,
+        total,
       };
 
       const response = await axios.post(
